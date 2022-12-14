@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -22,21 +23,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Import({QuerydslConfiguration.class})
 class EventHistoryRepositoryTest extends TestDataInitializer {
     @Autowired
-    private EventHistoryRepository participationRepository;
+    private EventHistoryRepository historyRepository;
 
     @Test
     @DisplayName("참여 이력 저장 test")
     public void saveTest() throws Exception {
         // given
-        Member member = new Member("testId", "testPassword");
+        Member member = memberRepository.findByMemberId(TEST_MEMBER.getMemberId())
+                .orElseThrow();
+        Event event = eventRepository.findById(TEST_EVENT.getId())
+                .orElseThrow();
         long rewardAmount = 100L;
-        Event event = Event.rewardEvent("reward", "title", "description", rewardAmount);
         long continuousDays = 2L;
         LocalDate participateDate = LocalDate.now();
         EventHistory history = new EventHistory(member, event, rewardAmount, continuousDays, participateDate);
 
         // when
-        EventHistory savedHistory = participationRepository.save(history);
+        EventHistory savedHistory = historyRepository.save(history);
 
         // then
         assertThat(savedHistory).isNotNull();
@@ -64,12 +67,55 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         EventHistory history = new EventHistory(member, event, rewardAmount, continuousDays, participateDate);
 
         // given - save history
-        participationRepository.save(history);
+        historyRepository.save(history);
 
         EventHistory sameHistory = new EventHistory(member, event, rewardAmount, continuousDays, participateDate);
 
         // when
-        assertThatThrownBy(() -> participationRepository.saveAndFlush(sameHistory))
+        assertThatThrownBy(() -> historyRepository.saveAndFlush(sameHistory))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    @DisplayName("이벤트 참여 이력 날짜별 조회 test")
+    public void findByMemberNoAndEventIdAndParticipateDate() throws Exception {
+        // given
+        Member member = memberRepository.findByMemberId(TEST_MEMBER.getMemberId())
+                .orElseThrow();
+        Event event = eventRepository.findById(TEST_EVENT.getId())
+                .orElseThrow();
+        LocalDate participateDate = LocalDate.of(2022, 12, 1);
+        long rewardAmount = 100L;
+        long continuousDays = 2L;
+
+        EventHistory expectedHistory = new EventHistory(member, event, rewardAmount, continuousDays, participateDate);
+        historyRepository.save(expectedHistory);
+
+        Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
+                .orElseThrow();
+        EventHistory otherMemberHistory = new EventHistory(otherMember, event, rewardAmount, continuousDays, participateDate);
+        historyRepository.save(otherMemberHistory);
+
+        Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
+                .orElseThrow();
+        EventHistory otherEventHistory = new EventHistory(member, otherEvent, rewardAmount, continuousDays, participateDate);
+        historyRepository.save(otherEventHistory);
+
+        EventHistory otherDateHistory = new EventHistory(member, event, rewardAmount, continuousDays, participateDate.plusDays(1));
+        historyRepository.save(otherDateHistory);
+
+        // when
+        Optional<EventHistory> historyOptional = historyRepository.findByMemberNoAndEventIdAndParticipateDate(
+                member.getNo(),
+                event.getId(),
+                participateDate
+        );
+
+        // then
+        assertThat(historyOptional).isNotEmpty();
+        EventHistory history = historyOptional.get();
+        assertThat(history.getMember().getMemberId()).isEqualTo(member.getMemberId());
+        assertThat(history.getEvent().getId()).isEqualTo(event.getId());
+        assertThat(history.getParticipateDate()).isEqualTo(participateDate);
     }
 }
