@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Getter
-public class EventParticipation {
+public class EventHistory {
     @Id @GeneratedValue
     private Long no;
 
@@ -29,7 +29,7 @@ public class EventParticipation {
 
     private LocalDateTime participatedAt;
 
-    public EventParticipation(
+    public EventHistory(
             Member member,
             Event event,
             Long rewardAmount,
