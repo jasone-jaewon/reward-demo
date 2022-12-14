@@ -7,11 +7,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor
 @Getter
+@Table(
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"member_no", "participate_date", "event_id"})}
+)
 public class EventHistory extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long no;
@@ -28,19 +31,20 @@ public class EventHistory extends BaseTimeEntity {
 
     private Long continuousDays;
 
-    private LocalDateTime participatedAt;
+    @Column(name = "participate_date")
+    private LocalDate participateDate;
 
     public EventHistory(
             Member member,
             Event event,
             Long rewardAmount,
             Long continuousDays,
-            LocalDateTime participatedAt
+            LocalDate participateDate
     ) {
         this.member = member;
         this.event = event;
         this.rewardAmount = rewardAmount;
         this.continuousDays = continuousDays;
-        this.participatedAt = participatedAt;
+        this.participateDate = participateDate;
     }
 }

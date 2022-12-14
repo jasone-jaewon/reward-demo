@@ -5,7 +5,7 @@ import com.example.rewarddemo.member.entity.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,10 +19,10 @@ class EventHistoryTest {
         long rewardAmount = 100L;
         Event event = Event.rewardEvent("reward", "title", "description", rewardAmount);
         long continuousDays = 2L;
-        LocalDateTime participatedAt = LocalDateTime.now();
+        LocalDate participateDate = LocalDate.now();
 
         // when
-        EventHistory history = new EventHistory(member, event, rewardAmount, continuousDays, participatedAt);
+        EventHistory history = new EventHistory(member, event, rewardAmount, continuousDays, participateDate);
 
         // then
         assertThat(history).isNotNull();
@@ -30,7 +30,6 @@ class EventHistoryTest {
         assertThat(history.getEvent()).isEqualTo(event);
         assertThat(history.getRewardAmount()).isEqualTo(rewardAmount);
         assertThat(history.getContinuousDays()).isEqualTo(continuousDays);
-        assertThat(history.getParticipatedAt()).isEqualTo(participatedAt);
+        assertThat(history.getParticipateDate()).isEqualTo(participateDate);
     }
-
 }
