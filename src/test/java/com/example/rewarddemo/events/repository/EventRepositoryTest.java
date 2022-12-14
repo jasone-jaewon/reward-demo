@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +34,12 @@ class EventRepositoryTest {
 
         // then
         assertThat(savedEvent).isNotNull();
-        assertThat(savedEvent).usingRecursiveComparison().isEqualTo(event);
+        assertThat(savedEvent.getId()).isEqualTo(event.getId());
+        assertThat(savedEvent.getTitle()).isEqualTo(event.getTitle());
+        assertThat(savedEvent.getDescription()).isEqualTo(event.getDescription());
         assertThat(savedEvent.getReward()).isNull();
+        assertThat(savedEvent.getCreatedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
+        assertThat(savedEvent.getModifiedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
     }
 
     @Test
@@ -53,6 +58,8 @@ class EventRepositoryTest {
         assertThat(reward.getNo()).isNotNull();
         assertThat(reward.getAmount()).isNotNull();
         assertThat(reward.getEvent()).isNotNull();
+        assertThat(reward.getCreatedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
+        assertThat(reward.getModifiedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
     }
 
     @Test
@@ -77,6 +84,8 @@ class EventRepositoryTest {
             assertThat(bonusReward.getAmount()).isIn(300L, 500L, 1000L);
             assertThat(bonusReward.getStandardDays()).isIn(3L, 5L, 10L);
             assertThat(bonusReward.getEvent()).isNotNull();
+            assertThat(bonusReward.getCreatedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
+            assertThat(bonusReward.getModifiedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
         });
     }
 

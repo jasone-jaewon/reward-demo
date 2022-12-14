@@ -41,6 +41,8 @@ class EventHistoryRepositoryTest {
         assertThat(savedHistory.getEvent().getId()).isEqualTo(event.getId());
         assertThat(savedHistory.getRewardAmount()).isEqualTo(rewardAmount);
         assertThat(savedHistory.getContinuousDays()).isEqualTo(continuousDays);
-        assertThat(savedHistory.getParticipatedAt()).isEqualTo(participatedAt);
+        assertThat(savedHistory.getParticipateAt()).isEqualTo(participatedAt);
+        assertThat(savedHistory.getCreatedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
+        assertThat(savedHistory.getModifiedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
     }
 }

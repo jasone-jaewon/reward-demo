@@ -1,5 +1,6 @@
 package com.example.rewarddemo.events.history.entity;
 
+import com.example.rewarddemo.adapter.jpa.common.BaseTimeEntity;
 import com.example.rewarddemo.events.entity.Event;
 import com.example.rewarddemo.member.entity.Member;
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Getter
-public class EventHistory {
+public class EventHistory extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long no;
 

@@ -1,5 +1,6 @@
 package com.example.rewarddemo.events.entity;
 
+import com.example.rewarddemo.adapter.jpa.common.BaseTimeEntity;
 import com.example.rewarddemo.events.reward.entity.BonusReward;
 import com.example.rewarddemo.events.reward.entity.Reward;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Event {
+public class Event extends BaseTimeEntity {
     @Id
     private String id;
 

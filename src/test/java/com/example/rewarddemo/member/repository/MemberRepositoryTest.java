@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +36,8 @@ class MemberRepositoryTest {
         assertThat(savedMember).isNotNull();
         assertThat(savedMember.getNo()).isNotNull();
         assertThat(savedMember).usingRecursiveComparison().isEqualTo(member);
+        assertThat(savedMember.getCreatedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
+        assertThat(savedMember.getModifiedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
     }
 
     @Test

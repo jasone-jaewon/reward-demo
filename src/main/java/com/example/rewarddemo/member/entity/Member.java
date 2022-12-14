@@ -1,5 +1,6 @@
 package com.example.rewarddemo.member.entity;
 
+import com.example.rewarddemo.adapter.jpa.common.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Member {
+public class Member extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long no;
 
