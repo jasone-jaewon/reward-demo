@@ -1,5 +1,6 @@
 package com.example.rewarddemo.events.history.repository;
 
+import com.example.rewarddemo.adapter.querydsl.config.QuerydslConfiguration;
 import com.example.rewarddemo.events.entity.Event;
 import com.example.rewarddemo.events.history.entity.EventHistory;
 import com.example.rewarddemo.member.entity.Member;
@@ -7,12 +8,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@Import({QuerydslConfiguration.class})
 class EventHistoryRepositoryTest {
     @Autowired
     private EventHistoryRepository participationRepository;
