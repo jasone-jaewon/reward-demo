@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -31,6 +32,8 @@ public class EventHistory extends BaseTimeEntity {
 
     private Long continuousDays;
 
+    private LocalDateTime participatedAt;
+
     @Column(name = "participate_date")
     private LocalDate participateDate;
 
@@ -39,12 +42,13 @@ public class EventHistory extends BaseTimeEntity {
             Event event,
             Long rewardAmount,
             Long continuousDays,
-            LocalDate participateDate
+            LocalDateTime participatedAt
     ) {
         this.member = member;
         this.event = event;
         this.rewardAmount = rewardAmount;
         this.continuousDays = continuousDays;
-        this.participateDate = participateDate;
+        this.participatedAt = participatedAt;
+        this.participateDate = participatedAt.toLocalDate();
     }
 }
