@@ -27,4 +27,18 @@ public class BonusReward {
         this.standardDays = standardDays;
         this.event = event;
     }
+
+    /**
+     * 이벤트 세팅
+     * 연관관계 편의 method
+     *
+     * @param event
+     */
+    public void setEvent(Event event) {
+        if (this.event != null) {
+            this.event.getBonusRewards().remove(this);
+        }
+        this.event = event;
+        event.getBonusRewards().add(this);
+    }
 }

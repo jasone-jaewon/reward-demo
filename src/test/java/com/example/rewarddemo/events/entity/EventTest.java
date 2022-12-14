@@ -1,8 +1,11 @@
 package com.example.rewarddemo.events.entity;
 
+import com.example.rewarddemo.events.reward.entity.BonusReward;
 import com.example.rewarddemo.events.reward.entity.Reward;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,5 +60,23 @@ class EventTest {
         assertThat(reward).isNotNull();
         assertThat(reward.getEvent()).isNotNull();
         assertThat(reward.getAmount()).isEqualTo(rewardAmount);
+    }
+
+    @Test
+    @DisplayName("추가 보상 연관관계 추가 test")
+    public void addBonusRewardsTest() throws Exception {
+        // given
+        Event event = Event.rewardEvent("id", "test", "description", 100L);
+        BonusReward bonusReward1 = new BonusReward(300L, 3L, event);
+        BonusReward bonusReward2 = new BonusReward(500L, 5L, event);
+        BonusReward bonusReward3 = new BonusReward(1000L, 10L, event);
+        List<BonusReward> bonusRewards = List.of(bonusReward1, bonusReward2, bonusReward3);
+
+        // when
+        event.addBonusRewards(bonusRewards);
+
+        // then
+        assertThat(event.getBonusRewards()).isNotEmpty();
+        assertThat(event.getBonusRewards()).contains(bonusReward1, bonusReward2, bonusReward3);
     }
 }
