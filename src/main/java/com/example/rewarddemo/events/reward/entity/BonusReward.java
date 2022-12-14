@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class BonusReward extends BaseTimeEntity {
+    private static final int TEN_DAYS = 10;
 
     @Id
     @GeneratedValue
@@ -41,5 +42,20 @@ public class BonusReward extends BaseTimeEntity {
         }
         this.event = event;
         event.getBonusRewards().add(this);
+    }
+
+    /**
+     * 추가 보상 대상 여부 체크
+     *
+     * @param continuousDays 이벤트 연속 참여 일수
+     * @return 추가 보상 대상 여부
+     */
+    public boolean isRewardTarget(long continuousDays) {
+        long ZERO = 0L;
+        if (continuousDays == ZERO) {
+            return false;
+        }
+        long standardDays = continuousDays % TEN_DAYS == ZERO ? TEN_DAYS : continuousDays % TEN_DAYS;
+        return this.standardDays == standardDays;
     }
 }
