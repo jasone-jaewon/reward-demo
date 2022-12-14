@@ -37,10 +37,8 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
                 .orElseThrow();
         Event event = eventRepository.findById(TEST_EVENT.getId())
                 .orElseThrow();
-        long rewardAmount = 100L;
-        long continuousDays = 2L;
         LocalDateTime participatedAt = LocalDateTime.now();
-        EventHistory history = new EventHistory(member, event, rewardAmount, continuousDays, participatedAt);
+        EventHistory history = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
 
         // when
         EventHistory savedHistory = historyRepository.save(history);
@@ -50,8 +48,8 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         assertThat(savedHistory.getNo()).isNotNull();
         assertThat(savedHistory.getMember().getMemberId()).isEqualTo(member.getMemberId());
         assertThat(savedHistory.getEvent().getId()).isEqualTo(event.getId());
-        assertThat(savedHistory.getRewardAmount()).isEqualTo(rewardAmount);
-        assertThat(savedHistory.getContinuousDays()).isEqualTo(continuousDays);
+        assertThat(savedHistory.getContinuousDays()).isEqualTo(1L);
+        assertThat(savedHistory.getRewardAmount()).isEqualTo(event.getTotalRewardAmount(1L));
         assertThat(savedHistory.getParticipatedAt()).isEqualTo(participatedAt);
         assertThat(savedHistory.getParticipateDate()).isEqualTo(participatedAt.toLocalDate());
         assertThat(savedHistory.getCreatedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
@@ -66,15 +64,13 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
                 .orElseThrow();
         Event event = eventRepository.findById(TEST_EVENT.getId())
                 .orElseThrow();
-        long rewardAmount = 100L;
-        long continuousDays = 2L;
         LocalDateTime participatedAt = LocalDateTime.now();
-        EventHistory history = new EventHistory(member, event, rewardAmount, continuousDays, participatedAt);
+        EventHistory history = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
 
         // given - save history
         historyRepository.save(history);
 
-        EventHistory sameHistory = new EventHistory(member, event, rewardAmount, continuousDays, participatedAt);
+        EventHistory sameHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
 
         // when
         assertThatThrownBy(() -> historyRepository.saveAndFlush(sameHistory))
@@ -92,23 +88,21 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
 
         LocalDate participateDate = LocalDate.of(2022, 12, 1);
         LocalDateTime participatedAt = LocalDateTime.of(participateDate, LocalTime.MIN);
-        long rewardAmount = 100L;
-        long continuousDays = 2L;
 
-        EventHistory expectedHistory = new EventHistory(member, event, rewardAmount, continuousDays, participatedAt);
+        EventHistory expectedHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
         historyRepository.save(expectedHistory);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
-        EventHistory otherMemberHistory = new EventHistory(otherMember, event, rewardAmount, continuousDays, participatedAt);
+        EventHistory otherMemberHistory = EventHistory.createFirstParticipateHistory(otherMember, event, participatedAt);
         historyRepository.save(otherMemberHistory);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
-        EventHistory otherEventHistory = new EventHistory(member, otherEvent, rewardAmount, continuousDays, participatedAt);
+        EventHistory otherEventHistory = EventHistory.createFirstParticipateHistory(member, otherEvent, participatedAt);
         historyRepository.save(otherEventHistory);
 
-        EventHistory otherDateHistory = new EventHistory(member, event, rewardAmount, continuousDays, participatedAt.plusDays(1));
+        EventHistory otherDateHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAt.plusDays(1));
         historyRepository.save(otherDateHistory);
 
         // when
@@ -137,20 +131,18 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         LocalDate participateDate = LocalDate.of(2022, 12, 1);
         LocalDateTime participatedAtFirst = LocalDateTime.of(participateDate, LocalTime.MIN);
         LocalDateTime participatedAtSecond = LocalDateTime.of(participateDate, LocalTime.MAX);
-        long rewardAmount = 100L;
-        long continuousDays = 2L;
 
-        EventHistory firstHistory = new EventHistory(member, event, rewardAmount, continuousDays, participatedAtFirst);
+        EventHistory firstHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAtFirst);
         historyRepository.save(firstHistory);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
-        EventHistory secondHistory = new EventHistory(otherMember, event, rewardAmount, continuousDays, participatedAtSecond);
+        EventHistory secondHistory = EventHistory.createFirstParticipateHistory(otherMember, event, participatedAtSecond);
         historyRepository.save(secondHistory);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
-        EventHistory otherEventHistory = new EventHistory(member, otherEvent, rewardAmount, continuousDays, participatedAtFirst);
+        EventHistory otherEventHistory = EventHistory.createFirstParticipateHistory(member, otherEvent, participatedAtFirst);
         historyRepository.save(otherEventHistory);
 
         // given - order by participated_at
@@ -191,12 +183,10 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
                 .orElseThrow();
         LocalDate participateDate = LocalDate.of(2022, 12, 1);
         LocalDateTime participatedAt = LocalDateTime.of(participateDate, LocalTime.MIN);
-        long rewardAmount = 100L;
-        long continuousDays = 2L;
 
-        historyRepository.save(new EventHistory(member, event, rewardAmount, continuousDays, participatedAt.minusDays(2)));
-        historyRepository.save(new EventHistory(member, event, rewardAmount, continuousDays, participatedAt.minusDays(1)));
-        EventHistory expected = historyRepository.save(new EventHistory(member, event, rewardAmount, continuousDays, participatedAt));
+        historyRepository.save(EventHistory.createFirstParticipateHistory(member, event, participatedAt.minusDays(2)));
+        historyRepository.save(EventHistory.createFirstParticipateHistory(member, event, participatedAt.minusDays(1)));
+        EventHistory expected = historyRepository.save(EventHistory.createFirstParticipateHistory(member, event, participatedAt));
 
         // when
         Optional<EventHistory> latestHistory = historyRepository.findLatestHistory(event.getId(), member.getNo());
