@@ -180,4 +180,29 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         // then - desc
         assertThat(descHistories.getContent().get(0).getNo()).isEqualTo(secondHistory.getNo());
     }
+
+    @Test
+    @DisplayName("가장 최근 이벤트 참여이력 조회 test")
+    public void findLatestHistoryTest() throws Exception {
+        // given
+        Member member = memberRepository.findByMemberId(TEST_MEMBER.getMemberId())
+                .orElseThrow();
+        Event event = eventRepository.findById(TEST_EVENT.getId())
+                .orElseThrow();
+        LocalDate participateDate = LocalDate.of(2022, 12, 1);
+        LocalDateTime participatedAt = LocalDateTime.of(participateDate, LocalTime.MIN);
+        long rewardAmount = 100L;
+        long continuousDays = 2L;
+
+        historyRepository.save(new EventHistory(member, event, rewardAmount, continuousDays, participatedAt.minusDays(2)));
+        historyRepository.save(new EventHistory(member, event, rewardAmount, continuousDays, participatedAt.minusDays(1)));
+        EventHistory expected = historyRepository.save(new EventHistory(member, event, rewardAmount, continuousDays, participatedAt));
+
+        // when
+        Optional<EventHistory> latestHistory = historyRepository.findLatestHistory(event.getId(), member.getNo());
+
+        // then
+        assertThat(latestHistory).isPresent();
+        assertThat(latestHistory.get()).isEqualTo(expected);
+    }
 }
