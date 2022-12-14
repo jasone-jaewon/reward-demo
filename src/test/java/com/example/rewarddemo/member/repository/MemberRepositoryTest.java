@@ -95,4 +95,25 @@ class MemberRepositoryTest {
         assertThat(foundMember).isPresent();
         assertThat(foundMember.get()).usingRecursiveComparison().isEqualTo(member);
     }
+
+    @Test
+    @DisplayName("회원 포인트 변경 test")
+    public void updateMemberPointTest() throws Exception {
+        // given
+        String memberId = "testId";
+        String password = "testPassword";
+        Member member = new Member(memberId, password);
+        memberRepository.save(member);
+        long point = 100L;
+
+
+        // when
+        member.earnPoint(point);
+        memberRepository.flush();
+
+        // then
+        Optional<Member> foundMember = memberRepository.findByMemberId(memberId);
+        assertThat(foundMember).isPresent();
+        assertThat(foundMember.get().getPoint()).isEqualTo(point);
+    }
 }

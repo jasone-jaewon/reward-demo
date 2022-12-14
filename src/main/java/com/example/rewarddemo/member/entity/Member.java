@@ -21,8 +21,19 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String password;
 
+    private Long point = 0L;
+
     public Member(String memberId, String password) {
         this.memberId = memberId;
         this.password = password;
+        this.point = 0L;
+    }
+
+    /**
+     * 포인트 적립
+     * @param point 적립할 포인트
+     */
+    public void earnPoint(long point) {
+        this.point += point;
     }
 }

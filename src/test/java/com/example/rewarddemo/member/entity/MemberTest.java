@@ -21,6 +21,26 @@ class MemberTest {
         assertThat(member).isNotNull();
         assertThat(member.getMemberId()).isEqualTo(memberId);
         assertThat(member.getPassword()).isEqualTo(password);
+        assertThat(member.getPoint()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("포인트 적립 test")
+    public void earnPointTest() throws Exception {
+        // given
+        String memberId = "testId";
+        String password = "testPassword";
+        Member member = new Member(memberId, password);
+
+        long point = 100_000L;
+        long anotherPoint = 200_000L;
+
+        // when
+        member.earnPoint(point);
+        member.earnPoint(anotherPoint);
+
+        // then
+        assertThat(member.getPoint()).isEqualTo(point + anotherPoint);
     }
 
 }
