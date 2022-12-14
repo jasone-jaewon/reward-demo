@@ -79,4 +79,24 @@ class EventTest {
         assertThat(event.getBonusRewards()).isNotEmpty();
         assertThat(event.getBonusRewards()).contains(bonusReward1, bonusReward2, bonusReward3);
     }
+
+    @Test
+    @DisplayName("전체 보상 조회 test")
+    public void getTotalRewardAmountTest() throws Exception {
+        // given
+        long expected = 1100L;
+        Event event = Event.rewardEvent("id", "test", "description", 100L);
+        BonusReward bonusReward1 = new BonusReward(300L, 3L, event);
+        BonusReward bonusReward2 = new BonusReward(500L, 5L, event);
+        BonusReward bonusReward3 = new BonusReward(1000L, 10L, event);
+        List<BonusReward> bonusRewards = List.of(bonusReward1, bonusReward2, bonusReward3);
+
+        event.addBonusRewards(bonusRewards);
+
+        // when
+        long totalRewardAmount = event.getTotalRewardAmount(50L);
+
+        // then
+        assertThat(totalRewardAmount).isEqualTo(expected);
+    }
 }

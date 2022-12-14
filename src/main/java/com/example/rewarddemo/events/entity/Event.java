@@ -16,6 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Event extends BaseTimeEntity {
+    private static final long EMPTY_AMOUNT = 0L;
+
     @Id
     private String id;
 
@@ -66,5 +68,23 @@ public class Event extends BaseTimeEntity {
      */
     public void addBonusRewards(List<BonusReward> bonusRewards) {
         bonusRewards.forEach(bonusReward -> bonusReward.setEvent(this));
+    }
+
+    /**
+     * 전체 보상 포인트 조회
+     *
+     * @param continuousDays 이벤트 연속 참여 일수
+     * @return 기존 보상 + 추가 보상
+     */
+    public long getTotalRewardAmount(long continuousDays) {
+        long rewardAmount = this.reward.getAmount();
+
+        long bonusRewardAmount = this.bonusRewards.stream()
+                .filter(bonusReward -> bonusReward.isRewardTarget(continuousDays))
+                .findAny()
+                .map(BonusReward::getAmount)
+                .orElse(EMPTY_AMOUNT);
+
+        return rewardAmount + bonusRewardAmount;
     }
 }
