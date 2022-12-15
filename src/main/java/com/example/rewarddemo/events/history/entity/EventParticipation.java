@@ -63,7 +63,7 @@ public class EventParticipation extends BaseTimeEntity {
      * @param participatedAt 이벤트 참여 시각
      * @return 이벤트 참여 이력
      */
-    public static EventParticipation createEventHistory(Member member, Event event, long continuousDays, long rewardAmount, LocalDateTime participatedAt) {
+    public static EventParticipation createParticipation(Member member, Event event, long continuousDays, long rewardAmount, LocalDateTime participatedAt) {
         return new EventParticipation(member, event, rewardAmount, continuousDays, participatedAt);
     }
 

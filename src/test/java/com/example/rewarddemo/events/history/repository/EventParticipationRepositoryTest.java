@@ -40,7 +40,7 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         LocalDateTime participatedAt = LocalDateTime.now();
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
-        EventParticipation history = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation history = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // when
         EventParticipation savedHistory = particiaptionRepository.save(history);
@@ -69,12 +69,12 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         LocalDateTime participatedAt = LocalDateTime.now();
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
-        EventParticipation history = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation history = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // given - save history
         particiaptionRepository.save(history);
 
-        EventParticipation sameHistory = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation sameHistory = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // when
         assertThatThrownBy(() -> particiaptionRepository.saveAndFlush(sameHistory))
@@ -95,22 +95,22 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
 
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
-        EventParticipation expected = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation expected = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt);
         particiaptionRepository.save(expected);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
 
-        EventParticipation otherMemberParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation otherMemberParticipation = EventParticipation.createParticipation(otherMember, event, continuousDays, totalRewardAmount, participatedAt);
         particiaptionRepository.save(otherMemberParticipation);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
         long otherEventRewardAmount = otherEvent.getTotalRewardAmount(continuousDays);
-        EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, otherEventRewardAmount, participatedAt);
+        EventParticipation otherEventParticipation = EventParticipation.createParticipation(member, otherEvent, continuousDays, otherEventRewardAmount, participatedAt);
         particiaptionRepository.save(otherEventParticipation);
 
-        EventParticipation otherDateParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.plusDays(1));
+        EventParticipation otherDateParticipation = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt.plusDays(1));
         particiaptionRepository.save(otherDateParticipation);
 
         // when
@@ -143,18 +143,18 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
 
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
-        EventParticipation firstParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAtFirst);
+        EventParticipation firstParticipation = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAtFirst);
         particiaptionRepository.save(firstParticipation);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
-        EventParticipation secondParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAtSecond);
+        EventParticipation secondParticipation = EventParticipation.createParticipation(otherMember, event, continuousDays, totalRewardAmount, participatedAtSecond);
         particiaptionRepository.save(secondParticipation);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
 
-        EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, totalRewardAmount, participatedAtFirst);
+        EventParticipation otherEventParticipation = EventParticipation.createParticipation(member, otherEvent, continuousDays, totalRewardAmount, participatedAtFirst);
         particiaptionRepository.save(otherEventParticipation);
 
         // given - order by participated_at
@@ -198,9 +198,9 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
 
-        particiaptionRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(2)));
-        particiaptionRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(1)));
-        EventParticipation expected = particiaptionRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt));
+        particiaptionRepository.save(EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(2)));
+        particiaptionRepository.save(EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(1)));
+        EventParticipation expected = particiaptionRepository.save(EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt));
 
         // when
         Optional<EventParticipation> latestParticipation = particiaptionRepository.findLatestParticipation(event.getId(), member.getNo());
@@ -224,22 +224,22 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
 
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
-        EventParticipation expected = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation expected = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt);
         particiaptionRepository.save(expected);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
 
-        EventParticipation otherMemberParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation otherMemberParticipation = EventParticipation.createParticipation(otherMember, event, continuousDays, totalRewardAmount, participatedAt);
         particiaptionRepository.save(otherMemberParticipation);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
         long otherEventRewardAmount = otherEvent.getTotalRewardAmount(continuousDays);
-        EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, otherEventRewardAmount, participatedAt);
+        EventParticipation otherEventParticipation = EventParticipation.createParticipation(member, otherEvent, continuousDays, otherEventRewardAmount, participatedAt);
         particiaptionRepository.save(otherEventParticipation);
 
-        EventParticipation otherDateParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.plusDays(1));
+        EventParticipation otherDateParticipation = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt.plusDays(1));
         particiaptionRepository.save(otherDateParticipation);
 
         //when

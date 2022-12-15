@@ -27,7 +27,7 @@ class EventParticipationTest {
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
 
         // when
-        EventParticipation participation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        EventParticipation participation = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // then
         assertThat(participation).isNotNull();
@@ -48,7 +48,7 @@ class EventParticipationTest {
         long rewardAmount = 100L;
         Event event = Event.rewardEvent("reward", "title", "description", rewardAmount);
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
-        EventParticipation participation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, latestParticipatedAt);
+        EventParticipation participation = EventParticipation.createParticipation(member, event, continuousDays, totalRewardAmount, latestParticipatedAt);
 
         // when
         long nextContinuousDays = participation.nextContinuousDays(participatedAt.toLocalDate());
