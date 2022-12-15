@@ -4,6 +4,7 @@ import com.example.rewarddemo.adapter.jpa.common.BaseTimeEntity;
 import com.example.rewarddemo.events.entity.Event;
 import com.example.rewarddemo.member.entity.Member;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Table(
