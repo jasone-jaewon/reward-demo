@@ -66,4 +66,20 @@ public class EventParticipation extends BaseTimeEntity {
     public static EventParticipation createEventHistory(Member member, Event event, long continuousDays, long rewardAmount, LocalDateTime participatedAt) {
         return new EventParticipation(member, event, rewardAmount, continuousDays, participatedAt);
     }
+
+    /**
+     * 다음 연속 참여일 조회
+     * 이벤트 연속 참여시 연속 참여일 + 1
+     *
+     * @param participateDate 이벤트 참여 시도 날짜
+     * @return 이벤트 다음 연속 참여일
+     */
+    public long nextContinuousDays(LocalDate participateDate) {
+        if (this.participateDate.isEqual(participateDate)) {
+            return this.continuousDays;
+        }
+        LocalDate nextDate = this.participateDate.plusDays(1);
+        return nextDate.isEqual(participateDate) ? this.continuousDays + BASIC_CONTINUOUS_DAY : BASIC_CONTINUOUS_DAY;
+    }
+
 }
