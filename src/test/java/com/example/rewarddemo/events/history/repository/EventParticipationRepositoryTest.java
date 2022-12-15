@@ -2,7 +2,7 @@ package com.example.rewarddemo.events.history.repository;
 
 import com.example.rewarddemo.adapter.querydsl.config.QuerydslConfiguration;
 import com.example.rewarddemo.events.entity.Event;
-import com.example.rewarddemo.events.history.entity.EventHistory;
+import com.example.rewarddemo.events.history.entity.EventParticipation;
 import com.example.rewarddemo.member.entity.Member;
 import com.example.rewarddemo.util.TestDataInitializer;
 import org.junit.jupiter.api.DisplayName;
@@ -25,9 +25,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Import({QuerydslConfiguration.class})
-class EventHistoryRepositoryTest extends TestDataInitializer {
+class EventParticipationRepositoryTest extends TestDataInitializer {
     @Autowired
-    private EventHistoryRepository historyRepository;
+    private EventParticipationRepository historyRepository;
 
     @Test
     @DisplayName("참여 이력 저장 test")
@@ -38,18 +38,20 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         Event event = eventRepository.findById(TEST_EVENT.getId())
                 .orElseThrow();
         LocalDateTime participatedAt = LocalDateTime.now();
-        EventHistory history = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
+        long continuousDays = 3L;
+        long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
+        EventParticipation history = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // when
-        EventHistory savedHistory = historyRepository.save(history);
+        EventParticipation savedHistory = historyRepository.save(history);
 
         // then
         assertThat(savedHistory).isNotNull();
         assertThat(savedHistory.getNo()).isNotNull();
         assertThat(savedHistory.getMember().getMemberId()).isEqualTo(member.getMemberId());
         assertThat(savedHistory.getEvent().getId()).isEqualTo(event.getId());
-        assertThat(savedHistory.getContinuousDays()).isEqualTo(1L);
-        assertThat(savedHistory.getRewardAmount()).isEqualTo(event.getTotalRewardAmount(1L));
+        assertThat(savedHistory.getContinuousDays()).isEqualTo(continuousDays);
+        assertThat(savedHistory.getRewardAmount()).isEqualTo(totalRewardAmount);
         assertThat(savedHistory.getParticipatedAt()).isEqualTo(participatedAt);
         assertThat(savedHistory.getParticipateDate()).isEqualTo(participatedAt.toLocalDate());
         assertThat(savedHistory.getCreatedAt()).isEqualToIgnoringMinutes(LocalDateTime.now());
@@ -65,12 +67,14 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         Event event = eventRepository.findById(TEST_EVENT.getId())
                 .orElseThrow();
         LocalDateTime participatedAt = LocalDateTime.now();
-        EventHistory history = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
+        long continuousDays = 3L;
+        long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
+        EventParticipation history = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // given - save history
         historyRepository.save(history);
 
-        EventHistory sameHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
+        EventParticipation sameHistory = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // when
         assertThatThrownBy(() -> historyRepository.saveAndFlush(sameHistory))
@@ -89,40 +93,44 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         LocalDate participateDate = LocalDate.of(2022, 12, 1);
         LocalDateTime participatedAt = LocalDateTime.of(participateDate, LocalTime.MIN);
 
-        EventHistory expectedHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAt);
-        historyRepository.save(expectedHistory);
+        long continuousDays = 3L;
+        long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
+        EventParticipation expected = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        historyRepository.save(expected);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
-        EventHistory otherMemberHistory = EventHistory.createFirstParticipateHistory(otherMember, event, participatedAt);
-        historyRepository.save(otherMemberHistory);
+
+        EventParticipation otherMemberParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAt);
+        historyRepository.save(otherMemberParticipation);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
-        EventHistory otherEventHistory = EventHistory.createFirstParticipateHistory(member, otherEvent, participatedAt);
-        historyRepository.save(otherEventHistory);
+        long otherEventRewardAmount = otherEvent.getTotalRewardAmount(continuousDays);
+        EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, otherEventRewardAmount, participatedAt);
+        historyRepository.save(otherEventParticipation);
 
-        EventHistory otherDateHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAt.plusDays(1));
-        historyRepository.save(otherDateHistory);
+        EventParticipation otherDateParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.plusDays(1));
+        historyRepository.save(otherDateParticipation);
 
         // when
-        Optional<EventHistory> historyOptional = historyRepository.findByMemberNoAndEventIdAndParticipateDate(
+        Optional<EventParticipation> participationOptional = historyRepository.findByMemberNoAndEventIdAndParticipateDate(
                 member.getNo(),
                 event.getId(),
                 participateDate
         );
 
         // then
-        assertThat(historyOptional).isNotEmpty();
-        EventHistory history = historyOptional.get();
-        assertThat(history.getMember().getMemberId()).isEqualTo(member.getMemberId());
-        assertThat(history.getEvent().getId()).isEqualTo(event.getId());
-        assertThat(history.getParticipateDate()).isEqualTo(participateDate);
+        assertThat(participationOptional).isNotEmpty();
+        EventParticipation participation = participationOptional.get();
+        assertThat(participation.getMember().getMemberId()).isEqualTo(member.getMemberId());
+        assertThat(participation.getEvent().getId()).isEqualTo(event.getId());
+        assertThat(participation.getParticipateDate()).isEqualTo(participateDate);
     }
 
     @Test
     @DisplayName("이벤트 참여 이력 날짜별 조회 test")
-    public void findHistoriesByEventIdAndParticipateDateTest() throws Exception {
+    public void findAllByEventIdAndParticipateDateTest() throws Exception {
         // given
         Member member = memberRepository.findByMemberId(TEST_MEMBER.getMemberId())
                 .orElseThrow();
@@ -132,18 +140,22 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         LocalDateTime participatedAtFirst = LocalDateTime.of(participateDate, LocalTime.MIN);
         LocalDateTime participatedAtSecond = LocalDateTime.of(participateDate, LocalTime.MAX);
 
-        EventHistory firstHistory = EventHistory.createFirstParticipateHistory(member, event, participatedAtFirst);
-        historyRepository.save(firstHistory);
+
+        long continuousDays = 3L;
+        long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
+        EventParticipation firstParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAtFirst);
+        historyRepository.save(firstParticipation);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
-        EventHistory secondHistory = EventHistory.createFirstParticipateHistory(otherMember, event, participatedAtSecond);
-        historyRepository.save(secondHistory);
+        EventParticipation secondParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAtSecond);
+        historyRepository.save(secondParticipation);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
-        EventHistory otherEventHistory = EventHistory.createFirstParticipateHistory(member, otherEvent, participatedAtFirst);
-        historyRepository.save(otherEventHistory);
+
+        EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, totalRewardAmount, participatedAtFirst);
+        historyRepository.save(otherEventParticipation);
 
         // given - order by participated_at
         PageRequest pageableASC = PageRequest.of(0, 1, Sort.by("participatedAt").ascending());
@@ -151,13 +163,13 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
 
 
         // when
-        Page<EventHistory> ascHistories = historyRepository.findHistoriesByEventIdAndParticipateDate(
+        Page<EventParticipation> ascHistories = historyRepository.findAllByEventIdAndParticipateDate(
                 event.getId(),
                 participateDate,
                 pageableASC
         );
 
-        Page<EventHistory> descHistories = historyRepository.findHistoriesByEventIdAndParticipateDate(
+        Page<EventParticipation> descHistories = historyRepository.findAllByEventIdAndParticipateDate(
                 event.getId(),
                 participateDate,
                 pageableDESC
@@ -167,10 +179,10 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
         assertThat(ascHistories.getTotalElements()).isEqualTo(2);
 
         // then - asc
-        assertThat(ascHistories.getContent().get(0).getNo()).isEqualTo(firstHistory.getNo());
+        assertThat(ascHistories.getContent().get(0).getNo()).isEqualTo(firstParticipation.getNo());
 
         // then - desc
-        assertThat(descHistories.getContent().get(0).getNo()).isEqualTo(secondHistory.getNo());
+        assertThat(descHistories.getContent().get(0).getNo()).isEqualTo(secondParticipation.getNo());
     }
 
     @Test
@@ -183,16 +195,18 @@ class EventHistoryRepositoryTest extends TestDataInitializer {
                 .orElseThrow();
         LocalDate participateDate = LocalDate.of(2022, 12, 1);
         LocalDateTime participatedAt = LocalDateTime.of(participateDate, LocalTime.MIN);
+        long continuousDays = 3L;
+        long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
 
-        historyRepository.save(EventHistory.createFirstParticipateHistory(member, event, participatedAt.minusDays(2)));
-        historyRepository.save(EventHistory.createFirstParticipateHistory(member, event, participatedAt.minusDays(1)));
-        EventHistory expected = historyRepository.save(EventHistory.createFirstParticipateHistory(member, event, participatedAt));
+        historyRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(2)));
+        historyRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(1)));
+        EventParticipation expected = historyRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt));
 
         // when
-        Optional<EventHistory> latestHistory = historyRepository.findLatestHistory(event.getId(), member.getNo());
+        Optional<EventParticipation> latestParticipation = historyRepository.findLatestParticipation(event.getId(), member.getNo());
 
         // then
-        assertThat(latestHistory).isPresent();
-        assertThat(latestHistory.get()).isEqualTo(expected);
+        assertThat(latestParticipation).isPresent();
+        assertThat(latestParticipation.get()).isEqualTo(expected);
     }
 }
