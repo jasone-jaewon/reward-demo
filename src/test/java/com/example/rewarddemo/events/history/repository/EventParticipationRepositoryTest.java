@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Import({QuerydslConfiguration.class})
 class EventParticipationRepositoryTest extends TestDataInitializer {
     @Autowired
-    private EventParticipationRepository historyRepository;
+    private EventParticipationRepository particiaptionRepository;
 
     @Test
     @DisplayName("참여 이력 저장 test")
@@ -43,7 +43,7 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         EventParticipation history = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // when
-        EventParticipation savedHistory = historyRepository.save(history);
+        EventParticipation savedHistory = particiaptionRepository.save(history);
 
         // then
         assertThat(savedHistory).isNotNull();
@@ -72,12 +72,12 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         EventParticipation history = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // given - save history
-        historyRepository.save(history);
+        particiaptionRepository.save(history);
 
         EventParticipation sameHistory = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
 
         // when
-        assertThatThrownBy(() -> historyRepository.saveAndFlush(sameHistory))
+        assertThatThrownBy(() -> particiaptionRepository.saveAndFlush(sameHistory))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -96,25 +96,25 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
         EventParticipation expected = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
-        historyRepository.save(expected);
+        particiaptionRepository.save(expected);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
 
         EventParticipation otherMemberParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAt);
-        historyRepository.save(otherMemberParticipation);
+        particiaptionRepository.save(otherMemberParticipation);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
         long otherEventRewardAmount = otherEvent.getTotalRewardAmount(continuousDays);
         EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, otherEventRewardAmount, participatedAt);
-        historyRepository.save(otherEventParticipation);
+        particiaptionRepository.save(otherEventParticipation);
 
         EventParticipation otherDateParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.plusDays(1));
-        historyRepository.save(otherDateParticipation);
+        particiaptionRepository.save(otherDateParticipation);
 
         // when
-        Optional<EventParticipation> participationOptional = historyRepository.findByMemberNoAndEventIdAndParticipateDate(
+        Optional<EventParticipation> participationOptional = particiaptionRepository.findByMemberNoAndEventIdAndParticipateDate(
                 member.getNo(),
                 event.getId(),
                 participateDate
@@ -129,8 +129,8 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
     }
 
     @Test
-    @DisplayName("이벤트 참여 이력 날짜별 조회 test")
-    public void findAllByEventIdAndParticipateDateTest() throws Exception {
+    @DisplayName("이벤트 참여 이력 날짜별 조회 test - 페이징")
+    public void findAllByEventIdAndParticipateDateTest_Paged() throws Exception {
         // given
         Member member = memberRepository.findByMemberId(TEST_MEMBER.getMemberId())
                 .orElseThrow();
@@ -144,18 +144,18 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
         EventParticipation firstParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAtFirst);
-        historyRepository.save(firstParticipation);
+        particiaptionRepository.save(firstParticipation);
 
         Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
                 .orElseThrow();
         EventParticipation secondParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAtSecond);
-        historyRepository.save(secondParticipation);
+        particiaptionRepository.save(secondParticipation);
 
         Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
                 .orElseThrow();
 
         EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, totalRewardAmount, participatedAtFirst);
-        historyRepository.save(otherEventParticipation);
+        particiaptionRepository.save(otherEventParticipation);
 
         // given - order by participated_at
         PageRequest pageableASC = PageRequest.of(0, 1, Sort.by("participatedAt").ascending());
@@ -163,13 +163,13 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
 
 
         // when
-        Page<EventParticipation> ascHistories = historyRepository.findAllByEventIdAndParticipateDate(
+        Page<EventParticipation> ascHistories = particiaptionRepository.findAllByEventIdAndParticipateDate(
                 event.getId(),
                 participateDate,
                 pageableASC
         );
 
-        Page<EventParticipation> descHistories = historyRepository.findAllByEventIdAndParticipateDate(
+        Page<EventParticipation> descHistories = particiaptionRepository.findAllByEventIdAndParticipateDate(
                 event.getId(),
                 participateDate,
                 pageableDESC
@@ -187,7 +187,7 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
 
     @Test
     @DisplayName("가장 최근 이벤트 참여이력 조회 test")
-    public void findLatestHistoryTest() throws Exception {
+    public void findLatestParticipationTest() throws Exception {
         // given
         Member member = memberRepository.findByMemberId(TEST_MEMBER.getMemberId())
                 .orElseThrow();
@@ -198,15 +198,53 @@ class EventParticipationRepositoryTest extends TestDataInitializer {
         long continuousDays = 3L;
         long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
 
-        historyRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(2)));
-        historyRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(1)));
-        EventParticipation expected = historyRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt));
+        particiaptionRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(2)));
+        particiaptionRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.minusDays(1)));
+        EventParticipation expected = particiaptionRepository.save(EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt));
 
         // when
-        Optional<EventParticipation> latestParticipation = historyRepository.findLatestParticipation(event.getId(), member.getNo());
+        Optional<EventParticipation> latestParticipation = particiaptionRepository.findLatestParticipation(event.getId(), member.getNo());
 
         // then
         assertThat(latestParticipation).isPresent();
         assertThat(latestParticipation.get()).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("날짜별 이벤트 참여 이력 갯수 조회 test")
+    public void countParticipationTest() throws Exception {
+        // given
+        Member member = memberRepository.findByMemberId(TEST_MEMBER.getMemberId())
+                .orElseThrow();
+        Event event = eventRepository.findById(TEST_EVENT.getId())
+                .orElseThrow();
+
+        LocalDate participateDate = LocalDate.of(2022, 12, 1);
+        LocalDateTime participatedAt = LocalDateTime.of(participateDate, LocalTime.MIN);
+
+        long continuousDays = 3L;
+        long totalRewardAmount = event.getTotalRewardAmount(continuousDays);
+        EventParticipation expected = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt);
+        particiaptionRepository.save(expected);
+
+        Member otherMember = memberRepository.findByMemberId(TEST_MEMBER2.getMemberId())
+                .orElseThrow();
+
+        EventParticipation otherMemberParticipation = EventParticipation.createEventHistory(otherMember, event, continuousDays, totalRewardAmount, participatedAt);
+        particiaptionRepository.save(otherMemberParticipation);
+
+        Event otherEvent = eventRepository.findById(TEST_EVENT2.getId())
+                .orElseThrow();
+        long otherEventRewardAmount = otherEvent.getTotalRewardAmount(continuousDays);
+        EventParticipation otherEventParticipation = EventParticipation.createEventHistory(member, otherEvent, continuousDays, otherEventRewardAmount, participatedAt);
+        particiaptionRepository.save(otherEventParticipation);
+
+        EventParticipation otherDateParticipation = EventParticipation.createEventHistory(member, event, continuousDays, totalRewardAmount, participatedAt.plusDays(1));
+        particiaptionRepository.save(otherDateParticipation);
+
+        //when
+        Long count = particiaptionRepository.countByEventIdAndParticipateDate(event.getId(), participateDate);
+        // then
+        assertThat(count).isEqualTo(2L);
     }
 }
