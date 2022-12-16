@@ -32,7 +32,7 @@ class EventServiceTest {
         // given
         Event expected = TestDataInitializer.TEST_EVENT;
         String eventId = expected.getId();
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(expected));
+        when(eventRepository.findEventWithRewardById(eventId)).thenReturn(Optional.of(expected));
 
         // when
         Event event = eventService.findEventById(eventId);
@@ -46,7 +46,7 @@ class EventServiceTest {
     public void findByEventIdTest_notExist() throws Exception {
         // given
         String eventId = "testId1";
-        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        when(eventRepository.findEventWithRewardById(eventId)).thenReturn(Optional.empty());
 
         // when
         assertThatThrownBy(() -> eventService.findEventById(eventId))
