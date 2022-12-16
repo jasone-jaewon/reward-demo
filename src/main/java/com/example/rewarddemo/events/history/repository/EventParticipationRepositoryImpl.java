@@ -2,6 +2,7 @@ package com.example.rewarddemo.events.history.repository;
 
 import com.example.rewarddemo.events.history.entity.EventParticipation;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -21,6 +22,7 @@ public class EventParticipationRepositoryImpl implements EventParticipationRepos
                         eventParticipation.member.no.eq(memberNo)
                 )
                 .orderBy(eventParticipation.participatedAt.desc())
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .stream().findFirst();
     }
 }
