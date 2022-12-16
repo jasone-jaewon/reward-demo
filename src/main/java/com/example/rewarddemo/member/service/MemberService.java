@@ -47,7 +47,7 @@ public class MemberService {
      */
     public Member login(String id, String password) {
         Member member = memberRepository.findByMemberId(id)
-                .orElseThrow(() -> new MemberNotFoundException(id));
+                .orElseThrow(() -> new LoginFailException(id));
 
         if (!member.getPassword().equals(password)) {
             throw new LoginFailException(id);

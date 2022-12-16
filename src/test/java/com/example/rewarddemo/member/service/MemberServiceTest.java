@@ -79,7 +79,7 @@ class MemberServiceTest {
 
         // when & then
         assertThatThrownBy(() -> memberService.login(memberId, "password"))
-                .isInstanceOf(MemberNotFoundException.class);
+                .isInstanceOf(LoginFailException.class);
     }
 
     @Test
