@@ -1,11 +1,12 @@
 package com.example.rewarddemo.member.exception;
 
+import com.example.rewarddemo.error.exception.NotFoundException;
 import lombok.Getter;
 
 import java.text.MessageFormat;
 
 @Getter
-public class MemberNotFoundException extends RuntimeException {
+public class MemberNotFoundException extends NotFoundException {
     private Long no;
     private String id;
 
