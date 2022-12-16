@@ -1,6 +1,7 @@
 package com.example.rewarddemo.error;
 
 import com.example.rewarddemo.error.exception.BadRequestException;
+import com.example.rewarddemo.error.exception.ConflictException;
 import com.example.rewarddemo.error.exception.NotFoundException;
 import com.example.rewarddemo.error.exception.UnAuthorizedException;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Error> handleUnAuthorized(RuntimeException exception) {
         String message = exception.getMessage();
         HttpStatus status = HttpStatus.UNAUTHORIZED;
+        Error error = new Error(status, message);
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler({ConflictException.class})
+    public ResponseEntity<Error> handleConflict(RuntimeException exception) {
+        String message = exception.getMessage();
+        HttpStatus status = HttpStatus.CONFLICT;
         Error error = new Error(status, message);
         return ResponseEntity.status(status).body(error);
     }
