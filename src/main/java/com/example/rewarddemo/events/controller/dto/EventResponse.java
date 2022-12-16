@@ -34,8 +34,8 @@ public class EventResponse extends RepresentationModel<EventResponse> {
     @Schema(description = "추가 보상 정보")
     private final List<BonusRewardResponse> bonusRewards;
 
-    public EventResponse(Link selfLink, String eventId, String title, String description, RewardResponse reward, List<BonusRewardResponse> bonusRewards) {
-        super(selfLink);
+    public EventResponse(String eventId, String title, String description, RewardResponse reward, List<BonusRewardResponse> bonusRewards, Links links) {
+        super(links);
         this.eventId = eventId;
         this.title = title;
         this.description = description;
@@ -45,16 +45,18 @@ public class EventResponse extends RepresentationModel<EventResponse> {
 
     public static EventResponse of(Event event) {
         Link selfLink = linkTo(EventController.class).slash(event.getId()).withSelfRel();
+        Link participationLink = linkTo(methodOn(EventParticipationController.class).participate(event.getId(), null)).withRel("participate-event");
+
         List<BonusRewardResponse> bonusRewardResponses = event.getBonusRewards().stream()
                 .map(BonusRewardResponse::of)
                 .toList();
         return new EventResponse(
-                selfLink,
                 event.getId(),
                 event.getTitle(),
                 event.getDescription(),
                 RewardResponse.of(event.getReward()),
-                bonusRewardResponses
+                bonusRewardResponses,
+                Links.of(selfLink, participationLink)
         );
     }
 
