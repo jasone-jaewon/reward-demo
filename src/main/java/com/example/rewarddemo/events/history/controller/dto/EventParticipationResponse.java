@@ -8,12 +8,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.time.LocalDateTime;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Schema(description = "이벤트 참여 이력")
+@Relation(collectionRelation = "participations", itemRelation = "participation")
 @Getter
 public class EventParticipationResponse extends RepresentationModel<EventParticipationResponse> {
     @Schema(description = "이벤트 참여 정보 no")
@@ -45,7 +48,7 @@ public class EventParticipationResponse extends RepresentationModel<EventPartici
     }
 
     public static EventParticipationResponse of(EventParticipation participation) {
-        Link selfLink = linkTo(EventParticipationController.class).slash(participation.getNo()).withSelfRel();
+        Link selfLink = linkTo(methodOn(EventParticipationController.class).queryParticipation(participation.getEvent().getId(), participation.getNo())).withSelfRel();
         return new EventParticipationResponse(
                 selfLink,
                 participation.getNo(),

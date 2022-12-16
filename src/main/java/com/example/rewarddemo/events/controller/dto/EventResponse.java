@@ -2,16 +2,21 @@ package com.example.rewarddemo.events.controller.dto;
 
 import com.example.rewarddemo.events.controller.EventController;
 import com.example.rewarddemo.events.entity.Event;
+import com.example.rewarddemo.events.history.controller.EventParticipationController;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Links;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Schema(description = "이벤트 response")
+@Relation(collectionRelation = "events", itemRelation = "event")
 @Getter
 public class EventResponse extends RepresentationModel<EventResponse> {
     @Schema(description = "이벤트 id", example = "reward")

@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Schema(description = "회원 Response")
+@Relation(collectionRelation = "members", itemRelation = "member")
 @Getter
 public class MemberResponse extends RepresentationModel<MemberResponse> {
     @Schema(description = "회원 no")
