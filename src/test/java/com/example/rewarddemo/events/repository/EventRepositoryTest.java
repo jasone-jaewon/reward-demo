@@ -141,6 +141,37 @@ class EventRepositoryTest {
         return new Event(eventId, title, description);
     }
 
+    @Test
+    @DisplayName("이벤트 전체 조회 test - fetch 조인 test")
+    public void findAllWithRewardByIdTest() throws Exception {
+        // given
+        Event event = rewardEvent();
+        BonusReward bonusReward1 = new BonusReward(300L, 3L, event);
+        BonusReward bonusReward2 = new BonusReward(500L, 5L, event);
+        BonusReward bonusReward3 = new BonusReward(1000L, 10L, event);
+        List<BonusReward> bonusRewards = List.of(bonusReward1, bonusReward2, bonusReward3);
+        event.addBonusRewards(bonusRewards);
+        eventRepository.saveAndFlush(event);
+
+        Event otherEvent = Event.rewardEvent("testEvent", "title", "description", 200L);
+        BonusReward bonusReward4 = new BonusReward(400L, 4L, otherEvent);
+        BonusReward bonusReward5 = new BonusReward(500L, 5L, otherEvent);
+        BonusReward bonusReward6 = new BonusReward(600L, 6L, otherEvent);
+        otherEvent.addBonusRewards(List.of(bonusReward4, bonusReward5, bonusReward6));
+        eventRepository.saveAndFlush(otherEvent);
+
+
+        // when
+        List<Event> rewardEvents = eventRepository.findAllWithReward();
+
+        // then
+        assertThat(rewardEvents).isNotEmpty();
+        rewardEvents.forEach(rewardEvent -> {
+            assertThat(rewardEvent.getBonusRewards()).isNotEmpty();
+            assertThat(rewardEvent.getReward()).isNotNull();
+        });
+    }
+
     private Event rewardEvent() {
         String eventId = "reward";
         String title = "매일 00시 00분 00초 선착순 10명 100 포인트 지급!!!";
