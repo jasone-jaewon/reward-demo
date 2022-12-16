@@ -47,7 +47,7 @@ class MemberRepositoryTest {
         Member member = new Member(null, "testPassword");
 
         // when & then
-        assertThatThrownBy(() -> memberRepository.save(member))
+        assertThatThrownBy(() -> memberRepository.saveAndFlush(member))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -75,7 +75,7 @@ class MemberRepositoryTest {
         Member member = new Member("testId", null);
 
         // when & then
-        assertThatThrownBy(() -> memberRepository.save(member))
+        assertThatThrownBy(() -> memberRepository.saveAndFlush(member))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
