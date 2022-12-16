@@ -5,6 +5,7 @@ import com.example.rewarddemo.events.exception.AlreadyParticipateEventException;
 import com.example.rewarddemo.events.exception.ClosedEventException;
 import com.example.rewarddemo.events.exception.EventNotFoundException;
 import com.example.rewarddemo.events.history.entity.EventParticipation;
+import com.example.rewarddemo.events.history.exception.ParticipationNotFoundException;
 import com.example.rewarddemo.events.history.repository.EventParticipationRepository;
 import com.example.rewarddemo.events.service.EventService;
 import com.example.rewarddemo.member.entity.Member;
@@ -32,7 +33,7 @@ public class EventParticipationService {
      *
      * @param eventId         이벤트 아이디
      * @param participateDate 검색할 참여 날짜
-     * @param pageable 페이징
+     * @param pageable        페이징
      * @return paged event histories
      */
     public Page<EventParticipation> findByParticipateDate(String eventId, LocalDate participateDate, Pageable pageable) {
@@ -47,12 +48,13 @@ public class EventParticipationService {
      * 이벤트 참여
      * - 참여 인원이 10 명 이상인 경우, 참여 불가
      * - 당일 이벤트 참여시, 중복 참여 불가
-     * @param member 회원
+     *
+     * @param member  회원
      * @param eventId 이벤트 id
-     * @throws EventNotFoundException 이벤트 조회 불가
-     * @throws ClosedEventException 이벤트 마감으로 인한 참여 불가
-     * @throws AlreadyParticipateEventException 이벤트 중복 참여 불가
      * @return 이벤트 참여이력 No
+     * @throws EventNotFoundException           이벤트 조회 불가
+     * @throws ClosedEventException             이벤트 마감으로 인한 참여 불가
+     * @throws AlreadyParticipateEventException 이벤트 중복 참여 불가
      */
     @Transactional
     public Long participate(String eventId, Member member) {
@@ -93,5 +95,10 @@ public class EventParticipationService {
                 participatedAt
         );
         return participationRepository.save(participation).getNo();
+    }
+
+    public EventParticipation findByNo(long participationNo) {
+        return participationRepository.findById(participationNo)
+                .orElseThrow(() -> new ParticipationNotFoundException(participationNo));
     }
 }
