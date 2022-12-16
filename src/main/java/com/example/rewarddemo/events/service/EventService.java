@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,10 +23,18 @@ public class EventService {
      * @return 이벤트 정보(보상 제외)
      */
     public Event findEventById(String eventId) {
-        Optional<Event> event = eventRepository.findById(eventId);
+        Optional<Event> event = eventRepository.findEventWithRewardById(eventId);
         if (event.isEmpty()) {
             throw new EventNotFoundException(eventId);
         }
         return event.get();
+    }
+
+    /**
+     * 이벤트 전체 조회
+     * @return
+     */
+    public List<Event> findAll() {
+        return eventRepository.findAllWithReward();
     }
 }
