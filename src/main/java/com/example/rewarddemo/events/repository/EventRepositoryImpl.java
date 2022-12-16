@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.rewarddemo.events.entity.QEvent.event;
 import static com.example.rewarddemo.events.reward.entity.QBonusReward.bonusReward;
@@ -15,7 +16,7 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Event findEventWithRewardById(String eventId) {
+    public Optional<Event> findEventWithRewardById(String eventId) {
         return jpaQueryFactory
                 .select(event)
                 .from(event)
@@ -23,7 +24,8 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
                 .join(event.bonusRewards, bonusReward).fetchJoin()
                 .where(event.id.eq(eventId))
                 .distinct()
-                .fetchOne();
+                .stream()
+                .findFirst();
     }
 
     @Override

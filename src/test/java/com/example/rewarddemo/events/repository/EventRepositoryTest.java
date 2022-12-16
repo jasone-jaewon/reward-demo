@@ -116,12 +116,22 @@ class EventRepositoryTest {
         eventRepository.saveAndFlush(event);
 
         // when
-        Event rewardEvent = eventRepository.findEventWithRewardById(event.getId());
+        Optional<Event> rewardEvent = eventRepository.findEventWithRewardById(event.getId());
 
         // then
-        assertThat(rewardEvent).isNotNull();
-        assertThat(rewardEvent.getBonusRewards()).isNotEmpty();
-        assertThat(rewardEvent.getReward()).isNotNull();
+        assertThat(rewardEvent).isPresent();
+        assertThat(rewardEvent.get().getBonusRewards()).isNotEmpty();
+        assertThat(rewardEvent.get().getReward()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("보상 이벤트 조회 test - 없은 eventId")
+    public void findEventWithRewardByIdTest_nonexistentEvent() throws Exception {
+        // when
+        Optional<Event> rewardEvent = eventRepository.findEventWithRewardById("nonexistent");
+
+        // then
+        assertThat(rewardEvent).isEmpty();
     }
 
     /**
